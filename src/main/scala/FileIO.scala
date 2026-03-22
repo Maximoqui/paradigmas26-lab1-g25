@@ -81,6 +81,8 @@ object FileIO {
 
       (subreditname,titulo,contentText,date)
     }
-  
+    .filter { case (subreditname, titulo, contentText, date) =>
+      contentText.trim.nonEmpty && titulo.trim.nonEmpty
+    }
   }
 }
