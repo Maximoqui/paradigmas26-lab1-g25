@@ -1,27 +1,66 @@
-import scala.io.Source
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import scala.io.Source
 
 object FileIO {
-  //defino mi tipo 
+  
+  // Definición de tipos
   type Post = (String, String, String, String)
-  // Pure function to read subscriptions from a JSON file
+  type Subscription = (String, String)
+  implicit val formats: Formats = DefaultFormats 
+
   def readSubscriptions(): List[String] = {
-    List(
-      "https://www.reddit.com/r/scala/.json?count=10",
-      "https://www.reddit.com/r/learnprogramming/.json?count=10"
-    )
+    loadSubscriptions("subscriptions.json") match {
+      case Some(subscriptions) =>
+        subscriptions.map { case (_, url) => url }
+      case None =>
+        List()
+    }
   }
 
-  // Pure function to download JSON feed from a URL
+  def readFile(path: String): Option[String] = {
+    try {
+      val source = Source.fromFile(path)
+      val content = source.mkString 
+      source.close()
+      Some(content)
+    } catch {
+      case _: Exception => None
+    } 
+  }
+
+  def parserSubscriptions(content: String): Option[List[Subscription]] = {
+    try {
+      val json = parse(content)
+      json match {
+        case JArray(arr) =>
+          Some(arr.map { elemento =>
+            val name = (elemento \ "name").extract[String]
+            val url = (elemento \ "url").extract[String]
+            (name, url) 
+          })
+        case _ => None
+      }
+    } catch {
+      case _: Exception => None
+    }
+  }
+
+  def loadSubscriptions(path: String): Option[List[Subscription]] = {
+    readFile(path) match {
+      case Some(content) => parserSubscriptions(content)
+      case None          => None
+    }
+  } 
+
   def downloadFeed(url: String): String = {
     val source = Source.fromURL(url)
     val content = source.mkString
     source.close()
     content
-
   }
-  def postList(posts: String): List[Post] = {
+
+ def postList(posts: String): List[Post] = {
     // esto es para el .extract
     implicit val formats: DefaultFormats.type = DefaultFormats 
     //transforma el string q descarge de downloadFeed en una estructura tipo arbol para poder "navegar" por el con \
@@ -36,8 +75,7 @@ object FileIO {
       val contentText = (datos \"data"\ "selftext").extract[String]
 
       val hora = (datos \"data"\ "created_utc").extract[Double].toLong
-      //val date = TextProcessing.formatDateFromUTC(hora) // no anda porque no existe formatDateFromUTC
-
+      
       val date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                .format(new java.util.Date(hora * 1000L))
 
