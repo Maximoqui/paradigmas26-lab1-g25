@@ -53,11 +53,13 @@ object FileIO {
     }
   } 
 
-  def downloadFeed(url: String): String = {
-    val source = Source.fromURL(url)
-    val content = source.mkString
-    source.close()
-    content
+  def downloadFeed(url: String): Option[String] = {
+    try {
+      val source = Source.fromURL(url) 
+      val content = source.mkString
+      source.close()
+      content
+    }.toOption // convierte success: Some, failure: None
   }
 
  def postList(posts: String): List[Post] = {
