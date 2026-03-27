@@ -89,7 +89,7 @@ object FileIO {
   }
 }
 
-def countwords(subreddit: String): Option[Int] = {
+def countwords(subreddit: String): map[string, Int] = {
   val palabras = subreddit.split("\\W+") // Separamos en palabras
   val stopwords: Set[String] = Set("the", "about", "above", "after", "again", "against", "all", "am", "an",
     "and", "any", "are", "aren't", "as", "at", "be", "because", "been",
@@ -118,7 +118,7 @@ def countwords(subreddit: String): Option[Int] = {
       .filter(p => !stopwords.contains(p.toLowerCase)) // Filtramos ignorando minusculas y mayusculas
       .filter(p => p.nonEmpty && p.head.isUpper) // filtramos palabras no vacias y que empiezan en mayusculas
       .groupBY(p => p) // Agrupar por las mismas palabras
-      .map { ( case (palabras, lista) => (palabras, lista.length)) }
+      .map { case (palabra, lista) => (palabra, lista.length) }
       
     resultado
 }
