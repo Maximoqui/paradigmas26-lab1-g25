@@ -6,8 +6,11 @@ object Main {
 
     val allPosts: List[(String, String)] = subscriptions.map { url =>
       println(s"Fetching posts from: $url")
-      val posts = FileIO.downloadFeed(url)
-      (url, posts)
+      // downloadFeed devuelve un Option. Usamos getOrElse para convertirlo en post
+      // si hay éxito extrae el texto si hay error devuelve un String vacío ("").
+    val posts = FileIO.downloadFeed(url)
+      .getOrElse("")
+    (url, posts)
     }
 
     val output = allPosts
