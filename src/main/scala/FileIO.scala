@@ -65,8 +65,6 @@ object FileIO {
   }
 
  def postList(posts: String): List[Post] = {
-    // esto es para el .extract
-    implicit val formats: DefaultFormats.type = DefaultFormats 
     //transforma el string q descarge de downloadFeed en una estructura tipo arbol para poder "navegar" por el con \
     val jsonposts = parse(posts)
     // convierte la rama en una lista para poder usar el map 
@@ -83,7 +81,7 @@ object FileIO {
       val date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                .format(new java.util.Date(hora * 1000L))
      
-      val score = (datos \"data"\ "score").extract[Int]
+      val score = (datos \ "data" \ "score").extractOpt[Int].getOrElse(0)
 
       (subreditname,titulo,contentText,date,score)
     }
@@ -126,5 +124,12 @@ object FileIO {
       .groupBy(identity)               
       .map { case (palabra, lista) => (palabra, lista.length) }
   }
+
+def totalScore(posts: List[Post]): Int = {
+  posts.foldLeft(0){ (acum, post) =>
+    val (_, _, _, _, score) = post
+    acum + score
+  }
+}
 
 }
