@@ -5,7 +5,7 @@ import scala.io.Source
 object FileIO {
   
   // Definición de tipos
-  type Post = (String, String, String, String)
+  type Post = (String, String, String, String, Int)
   type Subscription = (String, String)
   implicit val formats: Formats = DefaultFormats 
 
@@ -82,10 +82,12 @@ object FileIO {
       
       val date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                .format(new java.util.Date(hora * 1000L))
+     
+      val score = (datos \"data"\ "score").extract[Int]
 
-      (subreditname,titulo,contentText,date)
+      (subreditname,titulo,contentText,date,score)
     }
-    .filter { case (subreditname, titulo, contentText, date) =>
+    .filter { case (_, titulo, contentText,_,_) =>
       contentText.trim.nonEmpty && titulo.trim.nonEmpty
     }
   }  
